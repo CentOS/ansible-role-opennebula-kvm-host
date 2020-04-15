@@ -1,1 +1,13 @@
-# Defaults variables for role opennebula-kvm-host
+# Default variables for opennebula-frontend role
+
+opennebula_version: '5.10'
+opennebula_pkgs_list:
+  - opennebula-common
+  - opennebula-node-kvm
+
+# Which pre-generated ssh keys we want to deploy from central pkistore
+opennebula_ssh_private_key: ssh-opennebula-dev.key
+opennebula_ssh_pub_key: ssh-opennebula-dev.pub
+
+# Do we want to use newer qemu-kvm-ev pkgs for better performances ?
+opennebula_kvm_ev: True

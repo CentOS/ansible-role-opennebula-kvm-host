@@ -1,1 +1,67 @@
-# Defaults tasks for role opennebula-kvm-host
+# Default task for role opennebula-kvm-host
+
+- name: Adding qemu-ev repo if needed
+  yum:
+    name: centos-release-qemu-ev
+    state: installed 
+  when: opennebula_kvm_ev
+
+- name: Importing basic kvm role
+  import_role:
+    name: kvm-host
+  vars:
+    kvm_host_manage_storage: False
+
+- name: Distributing repo to install Opennebula
+  template:
+    src: opennebula.repo.j2
+    dest: /etc/yum.repos.d/opennebula.repo
+
+- name: Install required pkgs for Opennebula
+  yum:
+    name: "{{ opennebula_pkgs_list }}"
+    state: installed
+  notify:
+    - restart_libvirtd
+
+- name: Ensuring oneadmin has proper ssh dir
+  file:
+    path: /var/lib/one/.ssh
+    state: directory
+    owner: oneadmin
+    group: oneadmin
+    mode: 0700
+    setype: ssh_home_t
+
+- name: Importing ssh private key for oneadmin
+  copy:
+    src: "{{ pkistore }}/ssh/{{ opennebula_ssh_private_key }}"
+    dest: /var/lib/one/.ssh/id_rsa
+    owner: oneadmin
+    group: oneadmin
+    mode: 0600
+  tags:
+    - ssh
+
+- name: Importing ssh public key for oneadmin
+  copy:
+    src: "{{ pkistore }}/ssh/{{ opennebula_ssh_pub_key }}"
+    dest: /var/lib/one/.ssh/authorized_keys
+    owner: oneadmin
+    group: oneadmin
+    mode: 0600
+    setype: ssh_home_t
+  tags:
+    - ssh
+
+- name: Ensuring opennebula frontend can reach all nodes with forwarding
+  template:
+    src: ssh_config.j2
+    dest: /var/lib/one/.ssh/config
+    owner: oneadmin
+    group: oneadmin
+    mode: 0600
+    setype: ssh_home_t
+  tags:
+    - ssh
+
