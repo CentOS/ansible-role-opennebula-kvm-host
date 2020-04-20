@@ -11,3 +11,6 @@ opennebula_ssh_pub_key: ssh-opennebula-dev.pub
 
 # Do we want to use newer qemu-kvm-ev pkgs for better performances ?
 opennebula_kvm_ev: True
+
+# What would be the frontend node to which we want to delegate the join task
+opennebula_frontend_node: frontend.domain.com

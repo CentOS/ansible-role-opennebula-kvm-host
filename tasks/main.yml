@@ -46,15 +46,18 @@
 - name: Importing ssh public key for oneadmin
   copy:
     src: "{{ pkistore }}/ssh/{{ opennebula_ssh_pub_key }}"
-    dest: /var/lib/one/.ssh/authorized_keys
+    dest: "/var/lib/one/.ssh/{{ item }}"
     owner: oneadmin
     group: oneadmin
     mode: 0600
     setype: ssh_home_t
+  with_items:
+    - authorized_keys
+    - id_rsa.pub
   tags:
     - ssh
 
-- name: Ensuring opennebula frontend can reach all nodes with forwarding
+- name: Ensuring opennebula host can reach all nodes with forwarding
   template:
     src: ssh_config.j2
     dest: /var/lib/one/.ssh/config
@@ -65,3 +68,12 @@
   tags:
     - ssh
 
+- name: Joigning cluster if needed
+  one_host:
+    name: "{{ inventory_hostname }}"
+    api_password: "{{ opennebula_oneadmin_pass }}"
+    api_username: oneadmin
+    api_url: http://127.0.0.1:2633/RPC2
+  delegate_to: "{{ opennebula_frontend_node }}"
+  tags:
+    - cluster
