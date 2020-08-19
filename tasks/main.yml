@@ -68,12 +68,13 @@
   tags:
     - ssh
 
-- name: Joigning cluster if needed
-  one_host:
-    name: "{{ inventory_hostname }}"
-    api_password: "{{ opennebula_oneadmin_pass }}"
-    api_username: oneadmin
-    api_url: http://127.0.0.1:2633/RPC2
+- block:
+    - name: Joigning cluster if needed
+      one_host:
+        name: "{{ inventory_hostname }}"
+        api_password: "{{ opennebula_oneadmin_pass }}"
+        api_username: oneadmin
+        api_url: http://127.0.0.1:2633/RPC2
   delegate_to: "{{ opennebula_frontend_node }}"
   tags:
     - cluster
